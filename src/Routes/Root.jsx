@@ -4,7 +4,7 @@ import Navbar from '../Components/Pages/Navbar';
 
 const Root = () => {
     return (
-        <div>
+        <div className='bg-[#122B49] w-[93%] mx-auto'>
             <Navbar></Navbar>
             <Outlet></Outlet>
         </div>

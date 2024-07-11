@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar';
-import { Link } from 'react-router-dom';
 
 const PropertyDetailsForm = () => {
     const [activeTab, setActiveTab] = useState(1); // State for active tab
@@ -20,7 +18,6 @@ const PropertyDetailsForm = () => {
     const [propertyDescription, setPropertyDescription] = useState('');
 
     const handleNextClick = () => {
-        // Validation logic for current tab (if needed)
         if (activeTab === 1 && (!propertyFor || !propertyType)) {
             alert('Please fill out Property For and Property Type');
             return;
@@ -42,22 +39,19 @@ const PropertyDetailsForm = () => {
             return;
         }
 
-        // Move to next tab
         if (activeTab < 5) {
             setActiveTab(activeTab + 1);
         }
     };
 
     const handleSubmit = (event) => {
-        event.preventDefault(); // Prevent default form submission behavior
+        event.preventDefault(); 
 
-        // Validation for last tab if needed
         if (!propertyDescription) {
             alert('Please fill out Property Description');
             return;
         }
 
-        // Handle form submission logic here (if needed)
         console.log('Form submitted successfully!');
     };
 
