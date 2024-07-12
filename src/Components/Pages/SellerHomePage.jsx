@@ -4,6 +4,7 @@ import img from '../../assets/images/image 29.png';
 
 const SellerHomePage = () => {
   const [showOTPForm, setShowOTPForm] = useState(false);
+  const [showPropertyForm, setShowPropertyForm] = useState(false);
   const [formData, setFormData] = useState({
     owner: false,
     builder: false,
@@ -11,6 +12,7 @@ const SellerHomePage = () => {
     country: "",
     phone: "",
     email: "",
+    otp: "",
   });
 
   const handleChange = (e) => {
@@ -25,18 +27,25 @@ const SellerHomePage = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      owner: false,
-      builder: false,
-      [name]: value === 'true',
+      owner: name === 'owner' ? value === 'true' : false,
+      builder: name === 'builder' ? value === 'true' : false,
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleFirstNext = () => {
     if (formData.name && (formData.phone || formData.email) && formData.country) {
       setShowOTPForm(true);
     } else {
       alert('Please fill out all required fields');
+    }
+  };
+
+  const handleSecondNext = () => {
+    if (formData.otp && /^\d{5}$/.test(formData.otp)) {
+      // Navigate to property form here
+      window.location.href = '/propertyForm'; // Directly navigate
+    } else {
+      alert('Please enter a valid OTP (5 numeric digits)');
     }
   };
 
@@ -75,8 +84,8 @@ const SellerHomePage = () => {
             LETS GET YOU STARTED !
           </h3>
           <div className="overflow-y-auto h-48 py-4">
-            {!showOTPForm ? (
-              <form className="px-10 space-y-4" onSubmit={handleSubmit}>
+            {!showOTPForm && !showPropertyForm ? (
+              <form className="px-10 space-y-4">
                 <div>
                   <label className="block text-lg font-semibold text-gray-700">
                     <span className="text-red-500 mr-1">*</span> I am:
@@ -86,7 +95,7 @@ const SellerHomePage = () => {
                       <input
                         type="radio"
                         name="owner"
-                        value={true}
+                        value="true"
                         checked={formData.owner}
                         onChange={handleRadioChange}
                         className="form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]"
@@ -97,7 +106,7 @@ const SellerHomePage = () => {
                       <input
                         type="radio"
                         name="builder"
-                        value={true}
+                        value="true"
                         checked={formData.builder}
                         onChange={handleRadioChange}
                         className="form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]"
@@ -182,7 +191,9 @@ const SellerHomePage = () => {
                   />
                 </div>
               </form>
-            ) : (
+            ) : null}
+
+            {showOTPForm && !showPropertyForm && (
               <form className="px-10 space-y-4 w-[480px]">
                 <div>
                   <div className='flex justify-between'>
@@ -193,6 +204,8 @@ const SellerHomePage = () => {
                   <input
                     type="text"
                     name="otp"
+                    value={formData.otp}
+                    onChange={handleChange}
                     placeholder='0 0 0 0 0'
                     className="mt-1 block w-full p-2 border border-gray-500 rounded-md shadow-sm mb-4 sm:text-sm"
                   />
@@ -205,14 +218,24 @@ const SellerHomePage = () => {
           </div>
           <div className="flex bg-[#FCF8F4] justify-between items-center py-4 mt-4 px-6 ">
             <p className="text-sm text-gray-500">Need Help? <span className='text-black'>Call 9999999999</span></p>
-            <Link to="/propertyForm">
+            {(!showOTPForm && !showPropertyForm) && (
               <button
-                onClick={!showOTPForm ? handleSubmit : null}
+                onClick={handleFirstNext}
+                className="bg-[#122B49] text-white px-8 py-1 text-base rounded-md"
+              >
+                Next
+              </button>
+            )}
+            {showOTPForm && !showPropertyForm && (
+              <Link to={showPropertyForm ? "/propertyForm" : ""}>
+              <button
+                onClick={handleSecondNext}
                 className="bg-[#122B49] text-white px-8 py-1 text-base rounded-md"
               >
                 Next
               </button>
             </Link>
+            )}
           </div>
         </div>
       </div>
