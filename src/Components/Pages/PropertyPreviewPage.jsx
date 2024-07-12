@@ -2,30 +2,55 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const PropertyPreviewPage = () => {
-  const [properties, setProperties] = useState([]);
+  const [propertyDetails, setPropertyDetails] = useState(null);
+  const phoneEmail = localStorage.getItem('phoneEmail');
 
   useEffect(() => {
-    axios.get('http://localhost:5173/properties')
-      .then(res => setProperties(res.data))
-      .catch(err => console.log(err));
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/propertyDetails/${phoneEmail}`);
+        setPropertyDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching the property details:', error);
+      }
+    };
+
+    fetchData();
+  }, [phoneEmail]);
+
+  if (!propertyDetails) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="min-h-screen p-8">
-      {Array.isArray(properties) && properties.length > 0 ? (
-        properties.map(property => (
-          <div key={property._id} className="mb-6 bg-white shadow-md rounded p-4">
-            <h2 className="text-2xl mb-2">{property.propertyFor}</h2>
-            <p>{property.propertyType}</p>
-            <p>{property.bedrooms} Bedrooms</p>
-            <p>{property.bathrooms} Bathrooms</p>
-            <p>{property.address}</p>
-            {/* Display other features and amenities */}
+    <div className="container mx-auto p-4">
+      {/* Banner */}
+      <div className="mb-8">
+        {propertyDetails.fileURLs.length > 0 ? (
+          <div className="flex overflow-x-scroll space-x-4">
+            {propertyDetails.fileURLs.map((url, index) => (
+              <img key={index} src={url} alt={`Property Image ${index + 1}`} className="w-full h-64 object-cover rounded-lg shadow" />
+            ))}
           </div>
-        ))
-      ) : (
-        <p>No properties found.</p>
-      )}
+        ) : (
+          <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg shadow">No Images Available</div>
+        )}
+      </div>
+      
+      {/* Property Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Object.keys(propertyDetails).map((key) => {
+          if (key !== '_id' && key !== 'fileURLs' && key !== 'selectedLocation' && propertyDetails[key]) {
+            return (
+              <div key={key} className="p-4 border rounded-lg shadow bg-white">
+                <strong className="capitalize block mb-1 text-gray-600">{key.replace(/([A-Z])/g, ' $1')}:</strong> 
+                <span className="text-gray-800">{propertyDetails[key]}</span>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
     </div>
   );
 };

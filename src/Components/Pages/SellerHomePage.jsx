@@ -42,8 +42,15 @@ const SellerHomePage = () => {
 
   const handleSecondNext = () => {
     if (formData.otp && /^\d{5}$/.test(formData.otp)) {
+      var phoneEmail;
+      if(formData.email != ''){
+        phoneEmail = formData.email;
+      } else if(formData.phone != ''){
+        phoneEmail = formData.phone;
+      }
       // Navigate to property form here
-      window.location.href = '/propertyForm'; // Directly navigate
+      localStorage.setItem('phoneEmail', phoneEmail);
+      window.location.href = '/propertyForm'; 
     } else {
       alert('Please enter a valid OTP (5 numeric digits)');
     }

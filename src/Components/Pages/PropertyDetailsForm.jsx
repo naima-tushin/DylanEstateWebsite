@@ -6,10 +6,11 @@ import liftImage from '../../assets/images/lift.png';
 import securityImage from '../../assets/images/security.png';
 import { CiCamera } from 'react-icons/ci';
 import { AiOutlinePlus } from 'react-icons/ai';
-import { AiOutlineClose } from 'react-icons/ai';
+import axios from 'axios';
+
 
 const PropertyDetailsForm = () => {
-    const [activeTab, setActiveTab] = useState(0); // State for active tab
+    const [activeTab, setActiveTab] = useState(0);
     const [propertyFor, setPropertyFor] = useState('');
     const [propertyType, setPropertyType] = useState('');
     const [commercialType, setCommercialType] = useState('');
@@ -29,14 +30,14 @@ const PropertyDetailsForm = () => {
     const [locality, setLocality] = useState('');
     const [landmarkStreetName, setLandmarkStreetName] = useState('');
     const [selectedLocation, setSelectedLocation] = useState({ lat: 59.95, lng: 30.33 });
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [markers, setMarkers] = useState([]);
     const [city, setCity] = useState('');
     const [nonVeg, setNonVeg] = useState('');
     const [petsAllowed, setPetsAllowed] = useState('');
-    const [powercut, setPowercut] = useState('');
+    const [electricity, setElectricity] = useState('');
     const [waterSupply, setWaterSupply] = useState('');
     const [furnishing, setFurnishing] = useState('');
-    const [feature, handleFeatureChange] = useState('');
     const [tiles, setTiles] = useState('');
     const [safety, setSafety] = useState('');
     const [security, setSecurity] = useState('');
@@ -59,10 +60,15 @@ const PropertyDetailsForm = () => {
             <Marker key={index} lat={marker.lat} lng={marker.lng} />
         ));
     };
+    const phoneEmail = localStorage.getItem('phoneEmail');
+
+    const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+    const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
     const Marker = () => <div className="marker">Marker</div>;
 
-    const handleNextClick = () => {
+    const handleFirstClick = () => {
+
         if (
             propertyFor &&
             propertyType &&
@@ -85,37 +91,173 @@ const PropertyDetailsForm = () => {
         }
     };
 
+    const handleSecondClick = () => {
+
+
+        if (
+            buildingSocietyName != '' &&
+            locality != '' &&
+            landmarkStreetName &&
+            city
+        ) {
+            setActiveTab(activeTab + 1);
+        } else {
+            alert('Please fill in all required fields');
+        }
+    };
+
+    const handleThirdClick = () => {
+
+        if (
+            nonVeg &&
+            petsAllowed &&
+            electricity &&
+            waterSupply &&
+            safety &&
+            tiles &&
+            furnishing
+
+        ) {
+            setActiveTab(activeTab + 1);
+        } else {
+            alert('Please fill in all required fields');
+        }
+    };
+
+    const handleFourthClick = () => {
+
+        if (
+            rent &&
+            securityDeposit &&
+            maintenance &&
+            waterSupply &&
+            safety &&
+            tiles &&
+            furnishing
+
+        ) {
+            setActiveTab(activeTab + 1);
+        } else {
+            alert('Please fill in all required fields');
+        }
+    };
+
+
     const [fileURLs, setFileURLs] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [imagesSelected, setImagesSelected] = useState(false);
     const fileInputRef = useRef(null);
 
+    const [form, setForm] = useState({
+        petImage: ''
+    });
+    const [errors, setErrors] = useState({
+        petImage: ''
+    });
+    const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+
+
     const handleAddPhotosClick = () => {
         fileInputRef.current.click();
     };
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
         const urls = files.map(file => URL.createObjectURL(file));
         setFileURLs(prevURLs => [...prevURLs, ...urls]);
         setImagesSelected(true);
-      };
-    
-      const handleSaveAndPostClick = () => {
-        setShowModal(true);
-      };
-    
-      const handleModalClose = () => {
-        setShowModal(false);
-      };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if (activeTab === 5) {
-            // Handle form submission logic here
-            console.log('Form submitted');
+        for (let file of files) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await axios.post(image_hosting_api, formData);
+                const uploadedUrl = response.data.data.url;
+                setForm(prevForm => ({
+                    ...prevForm,
+                    petImage: uploadedUrl
+                }));
+                setUploadedImageUrl(uploadedUrl);
+                setErrors(prevErrors => ({
+                    ...prevErrors,
+                    petImage: ''
+                }));
+            } catch (error) {
+                console.error('Error:', error);
+                setErrors(prevErrors => ({
+                    ...prevErrors,
+                    petImage: 'Failed to upload image. Please try again.'
+                }));
+            }
+        }
+    };
+
+
+
+
+    const handleSubmit = async () => {
+        if (activeTab === 4) {
+            setShowConfirmationModal(true);
         } else {
-            handleNextClick();
+            if (activeTab === 0) handleFirstClick();
+            if (activeTab === 1) handleSecondClick();
+            if (activeTab === 2) handleThirdClick();
+            if (activeTab === 3) handleFourthClick();
+        }
+    };
+
+    const handleConfirmation = async () => {
+        try {
+            const formData = {
+               phoneEmail,
+                propertyFor,
+                propertyType,
+                commercialType,
+                residentialType,
+                builtUpArea,
+                carpetArea,
+                propertyOnFloor,
+                totalFloors,
+                propertyFacing,
+                propertyAge,
+                bhkType,
+                bathrooms,
+                balcony,
+                tenantPreference,
+                availability,
+                buildingSocietyName,
+                locality,
+                landmarkStreetName,
+                city,
+                nonVeg,
+                petsAllowed,
+                electricity,
+                waterSupply,
+                furnishing,
+                tiles,
+                safety,
+                security,
+                camera,
+                parking,
+                lift,
+                rent,
+                maintenance,
+                securityDeposit,
+                propertyDescription,
+                additionPricing,
+                selectedLocation,
+                fileURLs,
+            };
+
+            const response = await axios.post('http://localhost:5000/addProperty', formData);
+            console.log('Form submitted successfully:', response.data);
+            setShowModal(false);
+            // Reset form if needed
+            setShowConfirmationModal(false);
+            window.location.href = '/propertyPreviewPage';  
+        } catch (error) {
+            console.error('Error submitting form:', error);
         }
     };
 
@@ -598,8 +740,8 @@ const PropertyDetailsForm = () => {
                                                     type="radio"
                                                     name="powercut"
                                                     value="Rare/No Powercut"
-                                                    checked={powercut === 'Rare/No Powercut'}
-                                                    onChange={(e) => setPowercut(e.target.value)}
+                                                    checked={electricity === 'Rare/No Powercut'}
+                                                    onChange={(e) => setElectricity(e.target.value)}
                                                     className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
                                                 />
                                                 <span className="ml-6 text-gray-700 text-lg">Rare/No Powercut</span>
@@ -609,8 +751,8 @@ const PropertyDetailsForm = () => {
                                                     type="radio"
                                                     name="powercut"
                                                     value="Frequent Powercut"
-                                                    checked={powercut === 'Frequent Powercut'}
-                                                    onChange={(e) => setPowercut(e.target.value)}
+                                                    checked={electricity === 'Frequent Powercut'}
+                                                    onChange={(e) => setElectricity(e.target.value)}
                                                     className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
                                                 />
                                                 <span className="ml-6 text-gray-700 text-lg">Frequent Powercut</span>
@@ -690,85 +832,7 @@ const PropertyDetailsForm = () => {
                                             </label>
 
                                         </div>
-                                        <hr className='border-2 mb-8' />
-                                        <label className='text-xl font-bold'>Additional Features</label>
-                                        <div className='mt-8 flex justify-between ml-2'>
-                                            <div>
-                                                {/* First Column */}
-                                                <div className='space-x-36'>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Air Conditioning"
-                                                            checked={feature.includes('Air Conditioning')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Air Conditioning</span>
-                                                    </label>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Ceiling Fans"
-                                                            checked={feature.includes('Ceiling Fans')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Ceiling Fans</span>
-                                                    </label>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Refrigerator"
-                                                            checked={feature.includes('Refrigerator')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Refrigerator</span>
-                                                    </label>
-                                                </div>
 
-                                                {/* Second Column */}
-                                                <div className='space-x-[135px]'>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Washing Machine"
-                                                            checked={feature.includes('Washing Machine')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Washing Machine</span>
-                                                    </label>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Microwave"
-                                                            checked={feature.includes('Microwave')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Microwave</span>
-                                                    </label>
-                                                    <label className="inline-flex items-center mb-12">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="feature"
-                                                            value="Oven"
-                                                            checked={feature.includes('Oven')}
-                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
-                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
-                                                        />
-                                                        <span className="ml-6 text-gray-700 text-lg">Oven</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <hr className='mb-8 border-2' />
                                         <label className='text-xl font-bold'>Tiles</label>
                                         <div className='mt-8 flex justify-between w-[710px] ml-2'>
@@ -983,74 +1047,80 @@ const PropertyDetailsForm = () => {
                                         </div>
                                     </form>) :
                                     /* Tab 5 Fields */
-                                    ( <form className="property-form px-14 py-8" onSubmit={handleSubmit}>
-                                        <h2 className="text-xl font-semibold mb-10">
-                                          Add Photos / videos to attract more tenants!
-                                        </h2>
-                                        <p className="mb-8 font-semibold text-base tracking-wider">
-                                          Add Photos of living room, bedroom, bathroom, floor, doors, kitchen, balcony, location map, neighborhood, etc.
-                                        </p>
-                                  
-                                        <div className="border-black border-2 h-[350px] mx-auto p-4 text-center flex flex-col justify-center items-center">
-                                          <div>
-                                            <CiCamera size={64} />
-                                          </div>
-                                  
-                                          <button
-                                            type="button"
-                                            className="bg-[#122B49] text-white font-bold py-2 px-4 rounded mt-4 flex items-center"
-                                            onClick={handleAddPhotosClick}
-                                          >
-                                            <AiOutlinePlus size={20} className="mr-2" />
-                                            Add Photos Now
-                                          </button>
-                                          <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            multiple
-                                            className="hidden"
-                                            onChange={handleFileChange}
-                                          />
-                                        </div>
-                                  
-                                        <div className="mt-8 grid grid-cols-3 gap-4">
-                                          {fileURLs.map((url, index) => (
-                                            <img key={index} src={url} alt={`Uploaded ${index}`} className="w-full h-auto" />
-                                          ))}
-                                        </div>
-                                  
-                                        <div className="mt-8">
-                                          <p className="mb-4 text-lg font-semibold">OR</p>
-                                          <p className="mb-8 text-lg font-semibold tracking-wider">
-                                            We can upload them for you! You can email the pictures and videos to us at Dylanestate.com.
-                                          </p>
-                                          <p className="text-sm">Accepted formats are .jpg, .gif, .bmp & .png.</p>
-                                          <p className='text-sm'>Maximum size allowed is 20 MB. Minimum dimension allowed 600*400 Pixel.</p>
-                                        </div>
-                                      </form>
+                                    (
+                                        <form className="property-form px-14 py-8" onSubmit={handleSubmit}>
+                                            <h2 className="text-xl font-semibold mb-10">Add Photos / videos to attract more tenants!</h2>
+                                            <p className="mb-8 font-semibold text-base tracking-wider">Add Photos of living room, bedroom, bathroom, floor, doors, kitchen, balcony, location map, neighborhood, etc.</p>
+
+                                            <div className="border-black border-2 h-[350px] mx-auto p-4 text-center flex flex-col justify-center items-center">
+                                                <div>
+                                                    <CiCamera size={64} />
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    className="bg-[#122B49] text-white font-bold py-2 px-4 rounded mt-4 flex items-center"
+                                                    onClick={handleAddPhotosClick}
+                                                >
+                                                    <AiOutlinePlus size={20} className="mr-2" />
+                                                    Add Photos Now
+                                                </button>
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    multiple
+                                                    className="hidden"
+                                                    onChange={handleFileChange}
+                                                />
+                                            </div>
+
+                                            <div className="mt-8 grid grid-cols-3 gap-4">
+                                                {fileURLs.map((url, index) => (
+                                                    <img key={index} src={url} alt={`Uploaded ${index}`} className="w-full h-auto" />
+                                                ))}
+                                            </div>
+
+                                            <div className="mt-8">
+                                                <p className="mb-4 text-lg font-semibold">OR</p>
+                                                <p className="mb-8 text-lg font-semibold tracking-wider">We can upload them for you! You can email the pictures and videos to us at Dylanestate.com.</p>
+                                                <p className="text-sm">Accepted formats are .jpg, .gif, .bmp & .png.</p>
+                                                <p className="text-sm">Maximum size allowed is 20 MB. Minimum dimension allowed 600*400 Pixel.</p>
+                                            </div>
+                                        </form>
+
                                     )}
                 </div>
                 {/* Navigation buttons */}
                 <div className="flex bg-[#122B49] justify-between items-center py-4 px-16 ">
                     <p className="text-sm text-white">Need Help? Call 9999999999</p>
                     <div className="flex justify-end">
-                        {activeTab < 5 && (
+                        
                             <button
                                 type="button"
                                 className="bg-[#122B49] border text-white px-8 py-1 text-base rounded-md"
-                                onClick={handleNextClick}
+                                onClick={handleSubmit}
                             >
-                                Next
+                               {activeTab == 4 ? "Save & Post"  :"Next"}
                             </button>
-                        )}
-                        {activeTab === 5 && (
-                            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-lg">
-                                Submit
-                            </button>
-                        )}
+                        
+                        
                     </div>
                 </div>
             </div>
+            {showConfirmationModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <p className="mb-4">Are you sure you want to submit the form?</p>
+                        <button
+                            onClick={handleConfirmation}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                        >
+                            Continue
+                        </button>
+                        
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
