@@ -490,12 +490,13 @@ const PropertyDetailsForm = () => {
                                 {/* Map section */}
                                 <div className="map-container">
                                     <div style={{ height: '400px', position: 'relative' }}>
+                                    <textfield label="Search Locations" variant="outlined"></textfield>
                                         <SearchBar onSelect={handleSelect} />
                                         <div style={{ height: '100%', width: '100%', position: 'relative' }}>
                                             <GoogleMapReact
-                                                bootstrapURLKeys={{ key: 'AIzaSyBZp8-KXtVfXdMQB81-j3VXZP2UbNJIb4U', libraries: ['places'] }} // Replace with your API key
-                                                defaultCenter={{ lat: 59.95, lng: 30.33 }} // Default center of the map
-                                                defaultZoom={11} // Default zoom level
+                                                bootstrapURLKeys={{ key: '', libraries: ['places'] }} 
+                                                defaultCenter={{ lat: 59.95, lng: 30.33 }}
+                                                defaultZoom={11} 
                                                 center={selectedLocation}
                                                 style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }}
                                             >
