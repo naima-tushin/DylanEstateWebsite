@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import GoogleMapReact from 'google-map-react';
-import SearchBar from './SearchBar';
 import parkingImage from '../../assets/images/parking.png';
 import cameraImage from '../../assets/images/camera.png';
 import liftImage from '../../assets/images/lift.png';
 import securityImage from '../../assets/images/security.png';
 import { CiCamera } from 'react-icons/ci';
-
-
-const Marker = ({ text }) => <div className="marker">{text}</div>;
+import { AiOutlinePlus } from 'react-icons/ai';
+import { AiOutlineClose } from 'react-icons/ai';
 
 const PropertyDetailsForm = () => {
     const [activeTab, setActiveTab] = useState(0); // State for active tab
@@ -35,12 +33,18 @@ const PropertyDetailsForm = () => {
     const [city, setCity] = useState('');
     const [nonVeg, setNonVeg] = useState('');
     const [petsAllowed, setPetsAllowed] = useState('');
+    const [powercut, setPowercut] = useState('');
+    const [waterSupply, setWaterSupply] = useState('');
     const [furnishing, setFurnishing] = useState('');
+    const [feature, handleFeatureChange] = useState('');
+    const [tiles, setTiles] = useState('');
+    const [safety, setSafety] = useState('');
     const [security, setSecurity] = useState('');
     const [camera, setCamera] = useState('');
     const [parking, setParking] = useState('');
     const [lift, setLift] = useState('');
     const [rent, setRent] = useState('');
+    const [maintenance, setMaintenance] = useState('');
     const [securityDeposit, setSecurityDeposit] = useState('');
     const [propertyDescription, setPropertyDescription] = useState('');
     const [additionPricing, setAdditionPricing] = useState('');
@@ -49,10 +53,6 @@ const PropertyDetailsForm = () => {
     const localityOptions = ["Shanti Park, Miraroad East", "Shanti Park, Miraroad West", "Shanti Park, Miraroad North", "Shanti Park, Miraroad South", "Shanti Park"];
     const landmarkOptions = ["Prominent Landmark", "Landmark", "Landmark 1", "Landmark 2", "Landmark 3"];
     const cityOptions = ["Mumbai, Maharashtra", "Kolkata", "Chennai", "City 1", "City 2"];
-
-    const handleSelect = (location) => {
-        setSelectedLocation(location);
-    };
 
     const renderMarkers = () => {
         return markers.map((marker, index) => (
@@ -84,6 +84,30 @@ const PropertyDetailsForm = () => {
             alert('Please fill in all required fields');
         }
     };
+
+    const [fileURLs, setFileURLs] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [imagesSelected, setImagesSelected] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleAddPhotosClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = (event) => {
+        const files = Array.from(event.target.files);
+        const urls = files.map(file => URL.createObjectURL(file));
+        setFileURLs(prevURLs => [...prevURLs, ...urls]);
+        setImagesSelected(true);
+      };
+    
+      const handleSaveAndPostClick = () => {
+        setShowModal(true);
+      };
+    
+      const handleModalClose = () => {
+        setShowModal(false);
+      };
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -330,7 +354,6 @@ const PropertyDetailsForm = () => {
                                         </select>
                                     </div>
                                 </div>
-
                                 <br />
                                 <label className='text-lg font-semibold'>Property Age:<span className="text-red-500 ml-1">*</span></label>
                                 <div className="flex space-x-4 mt-3">
@@ -489,14 +512,13 @@ const PropertyDetailsForm = () => {
                                 </div>
                                 {/* Map section */}
                                 <div className="map-container">
-                                    <div style={{ height: '400px', position: 'relative' }}>
-                                    <textfield label="Search Locations" variant="outlined"></textfield>
-                                        <SearchBar onSelect={handleSelect} />
+                                    <label className='text-lg font-semibold'>Mark Locality on Map</label>
+                                    <div className="mt-3" style={{ height: '400px', position: 'relative' }}>
                                         <div style={{ height: '100%', width: '100%', position: 'relative' }}>
                                             <GoogleMapReact
-                                                bootstrapURLKeys={{ key: '', libraries: ['places'] }} 
+                                                bootstrapURLKeys={{ key: '', libraries: ['places'] }}
                                                 defaultCenter={{ lat: 59.95, lng: 30.33 }}
-                                                defaultZoom={11} 
+                                                defaultZoom={11}
                                                 center={selectedLocation}
                                                 style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }}
                                             >
@@ -512,11 +534,12 @@ const PropertyDetailsForm = () => {
                             activeTab == 2 ? (
                                 <form className="property-form px-14 py-8" onSubmit={handleSubmit}>
                                     <div>
-                                        <label className='text-lg font-semibold'>General Features</label>
+                                        <label className='text-xl font-bold mb-6'>General Features</label>
                                         <br />
                                         <br />
-                                        <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*</span>Non-Veg</label>
-                                        <div className='mt-2 flex justify-between w-[400px] ml-2 mb-12'>
+                                        <br />
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Non-Veg</label>
+                                        <div className='mt-8 flex justify-between w-[450px] ml-2 mb-10'>
                                             <label className="inline-flex items-center">
                                                 <input
                                                     type="radio"
@@ -541,8 +564,8 @@ const PropertyDetailsForm = () => {
                                             </label>
                                         </div>
                                         <br />
-                                        <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*</span>Pets Allowed:</label>
-                                        <div className='mt-2 flex justify-between w-[780px] ml-2'>
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Pets Allowed:</label>
+                                        <div className='mt-8 flex justify-between w-[380px] ml-2'>
                                             <label className="inline-flex items-center">
                                                 <input
                                                     type="radio"
@@ -567,11 +590,72 @@ const PropertyDetailsForm = () => {
                                             </label>
                                         </div>
                                         <br />
-                                        <hr />
                                         <br />
-                                        <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*</span>Furnishing</label>
-                                        <div className='mt-2 flex justify-between w-[780px] ml-2'>
-                                            <label className="inline-flex items-center">
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Electricity:</label>
+                                        <div className='mt-8 flex justify-between w-[510px] ml-2'>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="radio"
+                                                    name="powercut"
+                                                    value="Rare/No Powercut"
+                                                    checked={powercut === 'Rare/No Powercut'}
+                                                    onChange={(e) => setPowercut(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Rare/No Powercut</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="radio"
+                                                    name="powercut"
+                                                    value="Frequent Powercut"
+                                                    checked={powercut === 'Frequent Powercut'}
+                                                    onChange={(e) => setPowercut(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Frequent Powercut</span>
+                                            </label>
+                                        </div>
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Water Supply:</label>
+                                        <div className='mt-8 flex justify-between w-[600px] ml-2'>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="radio"
+                                                    name="waterSupply"
+                                                    value="Municipal Corporation (BMC)"
+                                                    checked={waterSupply === 'Municipal Corporation (BMC)'}
+                                                    onChange={(e) => setWaterSupply(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Municipal Corporation <br />(BMC)</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="radio"
+                                                    name="waterSupply"
+                                                    value="Borewell"
+                                                    checked={waterSupply === 'Borewell'}
+                                                    onChange={(e) => setWaterSupply(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Borewell</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="radio"
+                                                    name="waterSupply"
+                                                    value="Both"
+                                                    checked={waterSupply === 'Both'}
+                                                    onChange={(e) => setWaterSupply(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Both</span>
+                                            </label>
+                                        </div>
+                                        <hr className='mb-8 border-2' />
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Furnishing</label>
+                                        <div className='mt-8 flex justify-between w-[780px] ml-2'>
+                                            <label className="inline-flex items-center mb-12">
                                                 <input
                                                     type="checkbox"
                                                     name="furnishing"
@@ -582,7 +666,7 @@ const PropertyDetailsForm = () => {
                                                 />
                                                 <span className="ml-6 text-gray-700 text-lg">Fully Furnished</span>
                                             </label>
-                                            <label className="inline-flex items-center">
+                                            <label className="inline-flex items-center mb-12">
                                                 <input
                                                     type="checkbox"
                                                     name="furnishing"
@@ -593,7 +677,7 @@ const PropertyDetailsForm = () => {
                                                 />
                                                 <span className="ml-6 text-gray-700 text-lg">Semi Furnished</span>
                                             </label>
-                                            <label className="inline-flex items-center">
+                                            <label className="inline-flex items-center mb-12">
                                                 <input
                                                     type="checkbox"
                                                     name="furnishing"
@@ -606,14 +690,151 @@ const PropertyDetailsForm = () => {
                                             </label>
 
                                         </div>
-                                        <br />
-                                        <hr />
-                                        <br />
-                                        <label className='text-lg font-semibold'>Social Amenities</label>
-                                        <br />
-                                        <br />
+                                        <hr className='border-2 mb-8' />
+                                        <label className='text-xl font-bold'>Additional Features</label>
+                                        <div className='mt-8 flex justify-between ml-2'>
+                                            <div>
+                                                {/* First Column */}
+                                                <div className='space-x-36'>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Air Conditioning"
+                                                            checked={feature.includes('Air Conditioning')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Air Conditioning</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Ceiling Fans"
+                                                            checked={feature.includes('Ceiling Fans')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Ceiling Fans</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Refrigerator"
+                                                            checked={feature.includes('Refrigerator')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Refrigerator</span>
+                                                    </label>
+                                                </div>
 
-                                        <div className='mt-2 flex justify-between w-[780px] ml-2'>
+                                                {/* Second Column */}
+                                                <div className='space-x-[135px]'>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Washing Machine"
+                                                            checked={feature.includes('Washing Machine')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Washing Machine</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Microwave"
+                                                            checked={feature.includes('Microwave')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Microwave</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center mb-12">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="feature"
+                                                            value="Oven"
+                                                            checked={feature.includes('Oven')}
+                                                            onChange={(e) => feature != e.target.value ? handleFeatureChange(e.target.value) : handleFeatureChange('')}
+                                                            className='form-checkbox h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                        />
+                                                        <span className="ml-6 text-gray-700 text-lg">Oven</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr className='mb-8 border-2' />
+                                        <label className='text-xl font-bold'>Tiles</label>
+                                        <div className='mt-8 flex justify-between w-[710px] ml-2'>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tiles"
+                                                    value="Normal White Tiles"
+                                                    checked={tiles === 'Normal White Tiles'}
+                                                    onChange={(e) => setTiles(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Normal White Tiles</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tiles"
+                                                    value="Marble"
+                                                    checked={tiles === 'Marble'}
+                                                    onChange={(e) => setTiles(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Marble</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="checkbox"
+                                                    name="tiles"
+                                                    value="Vitrified Tiles"
+                                                    checked={tiles === 'Vitrified Tiles'}
+                                                    onChange={(e) => setTiles(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Vitrified Tiles</span>
+                                            </label>
+                                        </div>
+                                        <hr className='mb-8 border-2' />
+                                        <label className='text-xl font-bold'><span className="text-red-500 mr-1">*</span>Safety</label>
+                                        <div className='mt-8 flex justify-between w-[565px] ml-2'>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="checkbox"
+                                                    name="safety"
+                                                    value="Security"
+                                                    checked={safety === 'Security'}
+                                                    onChange={(e) => setSafety(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">24/7 Security personnel <br /> (Gated Security)</span>
+                                            </label>
+                                            <label className="inline-flex items-center mb-12">
+                                                <input
+                                                    type="checkbox"
+                                                    name="safety"
+                                                    value="Security Systems"
+                                                    checked={safety === 'Security Systems'}
+                                                    onChange={(e) => setSafety(e.target.value)}
+                                                    className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
+                                                />
+                                                <span className="ml-6 text-gray-700 text-lg">Security Systems- CCTV</span>
+                                            </label>
+                                        </div>
+                                        <hr className='border-2 mb-8' />
+                                        <label className='text-lg font-bold uppercase'>Society Amenities</label>
+                                        <div className='mt-20 flex justify-between w-[780px] ml-2'>
                                             <label className="flex flex-col items-center text-center">
                                                 <img src={securityImage} alt="Security" className="h-7 w-7 object-cover mb-2" />
                                                 <span className="ml-2 text-gray-700 text-base mb-7">24/7 Security</span>
@@ -625,9 +846,7 @@ const PropertyDetailsForm = () => {
                                                     onChange={(e) => security != e.target.value ? setSecurity(e.target.value) : setSecurity('')}
                                                     className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
                                                 />
-
                                             </label>
-
                                             <label className="flex flex-col items-center text-center">
                                                 <img src={cameraImage} alt="CCTV Camera" className="h-7 w-7 object-cover mb-2" />
                                                 <span className="ml-2 text-gray-700 text-base mb-7">CCTV Camera</span>
@@ -639,10 +858,7 @@ const PropertyDetailsForm = () => {
                                                     onChange={(e) => camera != e.target.value ? setCamera(e.target.value) : setCamera('')}
                                                     className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
                                                 />
-
                                             </label>
-
-
                                             <label className="flex flex-col items-center text-center">
                                                 <img src={liftImage} alt="Lift" className="h-7 w-7 object-cover mb-2" />
                                                 <span className="ml-2 text-gray-700 text-base mb-7">Lift</span>
@@ -667,20 +883,18 @@ const PropertyDetailsForm = () => {
                                                     onChange={(e) => parking != e.target.value ? setParking(e.target.value) : setParking('')}
                                                     className='form-radio h-6 w-6 text-[#122B49] focus:ring-[#122B49] border-[#122B49]'
                                                 />
-
                                             </label>
-
                                         </div>
-
-                                    </div> </form>) :
+                                    </div>
+                                </form>) :
                                 /* Tab 4 Fields */
                                 activeTab == 3 ? (
                                     <form className="property-form px-14 py-8" onSubmit={handleSubmit}>
                                         <div><br />
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-2 gap-20">
                                                 <div>
-                                                    <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*
-                                                    </span>Rent:</label>
+                                                    <label className='text-lg font-semibold'>Rent<span className="text-red-500 ml-1">*
+                                                    </span></label>
                                                     <div className="relative">
 
                                                         <input
@@ -689,7 +903,7 @@ const PropertyDetailsForm = () => {
                                                             placeholder='₹'
                                                             value={rent}
                                                             onChange={(e) => setRent(e.target.value)}
-                                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                            className="mt-3 block w-full p-4 mb-16 border border-gray-300 rounded-md shadow-sm sm:text-sm"
                                                         />
 
                                                         <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 pointer-events-none">
@@ -699,7 +913,7 @@ const PropertyDetailsForm = () => {
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*</span>Security</label>
+                                                    <label className='text-lg font-semibold'>Security<span className="text-red-500 ml-1">*</span></label>
                                                     <div className="relative">
                                                         <input
                                                             type="text"
@@ -707,39 +921,113 @@ const PropertyDetailsForm = () => {
                                                             placeholder='₹'
                                                             value={securityDeposit}
                                                             onChange={(e) => setSecurityDeposit(e.target.value)}
-                                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                            className="mt-3 block w-full p-4 mb-16 border border-gray-300 rounded-md shadow-sm sm:text-sm"
                                                         />
                                                         <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 pointer-events-none">
                                                             / Month
                                                         </span>
                                                     </div>
                                                 </div>
-
                                             </div>
-                                            <br />
-                                            <br />
-                                            <label className='text-lg font-semibold'><span className="text-red-500 mr-1">*</span>Additional Pricing details to convey to agent?</label>
+                                            <div className="grid grid-cols-2 gap-16">
+                                                <div className="">
+                                                    <label className='text-lg font-semibold'>Maintenance<span className="text-red-500 ml-1">*</span></label>
+                                                    <select
+                                                        name="Maintenance"
+                                                        value={maintenance}
+                                                        onChange={(e) => setMaintenance(e.target.value)}
+                                                        className="mt-3 py-4 block w-full p-4 border border-gray-300 rounded-md shadow-sm mb-16 sm:text-sm"
+                                                    >
+                                                        <option value="" disabled selected hidden>Maintenance</option>
+                                                        <option value="">Included in Rent</option>
+                                                        <option value="">Extra Maintenance</option>
+                                                    </select>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-8">
+                                                    <div className="">
+                                                        <label className='text-lg font-semibold'>Maintenance<span className="text-red-500 ml-1">*</span></label>
+                                                        <input
+                                                            type="number"
+                                                            name="Maintenance"
+                                                            value={maintenance}
+                                                            placeholder='₹ Maintenance'
+                                                            onChange={(e) => setMaintenance(e.target.value)}
+                                                            className="mt-3 block w-full p-4 border border-gray-300 rounded-md shadow-sm mb-16 sm:text-sm"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <select
+                                                            name="Maintenance"
+                                                            value={maintenance}
+                                                            onChange={(e) => setMaintenance(e.target.value)}
+                                                            className="mt-10 block w-full p-4 border border-gray-300 rounded-md shadow-sm mb-16 sm:text-sm"
+                                                        >
+                                                            <option value="" disabled selected hidden>Select</option>
+                                                            <option value="">Weekly</option>
+                                                            <option value="">Monthly</option>
+                                                            <option value="">Yearly</option>
+                                                            {/* Add more options as needed */}
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <label className='text-lg font-semibold'>Additional Pricing details to convey to agent?</label>
                                             <input type="text"
                                                 id="additionalPricing"
                                                 name="additionalPricing"
                                                 value={additionPricing}
                                                 onChange={(e) => setAdditionPricing(e.target.value)}
                                                 placeholder="Do you have any concerns regarding pricing of your property? Add your concerns here or call us"
-                                                class="w-full px-4 mt-2 border border-gray-300 rounded-lg h-24" />
+                                                class="w-full px-4 mt-2 mb-16 border border-gray-300 rounded-lg h-24" />
                                         </div>
                                     </form>) :
                                     /* Tab 5 Fields */
-                                    (<form className="property-form px-14 py-8" onSubmit={handleSubmit}>
-                                        <div className="border-black border-2 w-[90%] h-[400px] mx-auto p-4 text-center">
-                                            <div>
-                                                <CiCamera></CiCamera>
-                                            </div>
-
-                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-                                                Add Photos
-                                            </button>
+                                    ( <form className="property-form px-14 py-8" onSubmit={handleSubmit}>
+                                        <h2 className="text-xl font-semibold mb-10">
+                                          Add Photos / videos to attract more tenants!
+                                        </h2>
+                                        <p className="mb-8 font-semibold text-base tracking-wider">
+                                          Add Photos of living room, bedroom, bathroom, floor, doors, kitchen, balcony, location map, neighborhood, etc.
+                                        </p>
+                                  
+                                        <div className="border-black border-2 h-[350px] mx-auto p-4 text-center flex flex-col justify-center items-center">
+                                          <div>
+                                            <CiCamera size={64} />
+                                          </div>
+                                  
+                                          <button
+                                            type="button"
+                                            className="bg-[#122B49] text-white font-bold py-2 px-4 rounded mt-4 flex items-center"
+                                            onClick={handleAddPhotosClick}
+                                          >
+                                            <AiOutlinePlus size={20} className="mr-2" />
+                                            Add Photos Now
+                                          </button>
+                                          <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            multiple
+                                            className="hidden"
+                                            onChange={handleFileChange}
+                                          />
                                         </div>
-                                    </form>
+                                  
+                                        <div className="mt-8 grid grid-cols-3 gap-4">
+                                          {fileURLs.map((url, index) => (
+                                            <img key={index} src={url} alt={`Uploaded ${index}`} className="w-full h-auto" />
+                                          ))}
+                                        </div>
+                                  
+                                        <div className="mt-8">
+                                          <p className="mb-4 text-lg font-semibold">OR</p>
+                                          <p className="mb-8 text-lg font-semibold tracking-wider">
+                                            We can upload them for you! You can email the pictures and videos to us at Dylanestate.com.
+                                          </p>
+                                          <p className="text-sm">Accepted formats are .jpg, .gif, .bmp & .png.</p>
+                                          <p className='text-sm'>Maximum size allowed is 20 MB. Minimum dimension allowed 600*400 Pixel.</p>
+                                        </div>
+                                      </form>
                                     )}
                 </div>
                 {/* Navigation buttons */}
