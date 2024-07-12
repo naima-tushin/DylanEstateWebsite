@@ -32,7 +32,7 @@ const Navbar = () => {
           >
             <li><a className="hover:underline">PROPERTIES</a></li>
             <li><a className="hover:underline">MY DASHBOARD/ACTIVITY</a></li>
-            <li><NavLink to="/sellerHomePage" activeClassName="underline">LIST YOUR PROPERTY</NavLink></li>
+            <li><NavLink to="/" activeClassName="underline">LIST YOUR PROPERTY</NavLink></li>
             <li><a className="hover:underline">CONTACT US</a></li>
             <li><a className="hover:underline">MORE</a></li>
           </ul>
@@ -43,7 +43,7 @@ const Navbar = () => {
         <ul className="menu menu-horizontal px-1 font-bold space-x-6 hidden lg:flex">
           <li><a className="hover:underline">PROPERTIES</a></li>
           <li><a className="hover:underline">MY DASHBOARD/ACTIVITY</a></li>
-          <li><NavLink to="/sellerHomePage" activeClassName="underline">LIST YOUR PROPERTY</NavLink></li>
+          <li><NavLink to="/" activeClassName="underline">LIST YOUR PROPERTY</NavLink></li>
           <li><a className="hover:underline">CONTACT US</a></li>
           <li><a className="hover:underline">MORE</a></li>
         </ul>
