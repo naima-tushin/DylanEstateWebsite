@@ -8,7 +8,7 @@ const PropertyPreviewPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/propertyDetails/${phoneEmail}`);
+        const response = await axios.get(`https://dylan-server-side-eqxky2e3s-naima-tushins-projects.vercel.app/propertyDetails/${phoneEmail}`);
         setPropertyDetails(response.data);
       } catch (error) {
         console.error('Error fetching the property details:', error);

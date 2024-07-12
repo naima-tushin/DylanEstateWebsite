@@ -250,7 +250,7 @@ const PropertyDetailsForm = () => {
                 fileURLs,
             };
 
-            const response = await axios.post('http://localhost:5000/addProperty', formData);
+            const response = await axios.post('https://dylan-server-side-eqxky2e3s-naima-tushins-projects.vercel.app/addProperty', formData);
             console.log('Form submitted successfully:', response.data);
             setShowModal(false);
             // Reset form if needed
